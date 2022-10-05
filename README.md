@@ -12,7 +12,7 @@ N/A
 
 ## Usage
 
-To use this webpage, you may open the page using the Github pages link or this [link](https://tkmarsten.github.io/module-3-challenge/).
+To use this webpage, you may open the page using the Github pages link or this [link](https://tkmarsten.github.io/module-4-challenge/).
 
 ## Credits
 
