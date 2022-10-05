@@ -8,6 +8,22 @@ let i = 0 // Counter for checking question position
 var secondsLeft = 60; // Timer amount
 
 /*
+* Sets the quiz timer to count down every second.
+*/
+let timer = $('.quiz-timer')
+function setTime() {
+  var timerInterval = setInterval(function () {
+    secondsLeft--;
+    timer.text('Time: ' + secondsLeft)
+    if (secondsLeft === 0) {
+      clearInterval(timerInterval)
+    } else if (secondsLeft < 0) {
+      clearInterval(timerInterval)
+    }
+  }, 1000);
+}
+
+/*
 * Creates the initial introduction on page load.
 */
 function createHome() {
@@ -36,6 +52,53 @@ function displayQuestions() {
     button.text(questions[i].options[j])
     quizContent.append(button)
   }
+}
+
+/** 
+ * Displays the end screen after all questions have been answered.
+ * Prompts the user to enter their initials to submit their score to the highscores scoreboard.
+ * 
+*/
+function displayEndScreen() {
+  quizTitle.text('You scored ' + score + ' points')
+  quizContent.children().remove()
+  let inputForm = $('<form>')
+  inputForm.addClass('score-form')
+  let inputLabel = $('<label>')
+  inputLabel.attr('for', 'initials')
+  inputLabel.text('Enter initials:')
+  let input = $('<input>')
+  input.attr({ type: 'text', id: 'initials', name: 'initials' })
+  let inputButton = $('<button>')
+  inputButton.text('Submit Score')
+  inputButton.addClass('score-submit')
+  inputForm.append(inputLabel)
+  inputForm.append(input)
+  inputForm.append(inputButton)
+  quizContent.append(inputForm)
+}
+
+/**
+ * Displays all the scores stored in the local storage.
+ */
+function displayScoreboard() {
+  quizContent.children().remove()
+  quizTitle.text('Highscores')
+  let list = $('<ol>')
+  for (let i = 0; i < localStorage.length; i++) {
+    let listItem = $('<li>')
+    listItem.text(localStorage.key(i) + ' - ' + localStorage.getItem(localStorage.key(i)))
+    list.append(listItem)
+  }
+  quizContent.append(list)
+  let backButton = $('<button>')
+  backButton.addClass('scoreboard-back')
+  backButton.text('Go Back')
+  quizContent.append(backButton)
+  let clearButton = $('<button>')
+  clearButton.addClass('scoreboard-clear')
+  clearButton.text('Clear Highscores')
+  quizContent.append(clearButton)
 }
 
 /* 
@@ -72,75 +135,39 @@ quizMain.on('click', '.quiz-start', function () {
   setTime()
 })
 
-let timer = $('.quiz-timer')
-function setTime() {
-  var timerInterval = setInterval(function () {
-    secondsLeft--;
-    timer.text('Time: ' + secondsLeft)
-    if (secondsLeft === 0) {
-      clearInterval(timerInterval)
-    } else if (secondsLeft < 0) {
-      clearInterval(timerInterval)
-    }
-  }, 1000);
-}
-
-function displayEndScreen() {
-  quizTitle.text('You scored ' + score + ' points')
-  quizContent.children().remove()
-  let inputForm = $('<form>')
-  inputForm.addClass('score-form')
-  let inputLabel = $('<label>')
-  inputLabel.attr('for', 'initials')
-  inputLabel.text('Enter initials:')
-  let input = $('<input>')
-  input.attr({ type: 'text', id: 'initials', name: 'initials' })
-  let inputButton = $('<button>')
-  inputButton.text('Submit Score')
-  inputButton.addClass('score-submit')
-  inputForm.append(inputLabel)
-  inputForm.append(input)
-  inputForm.append(inputButton)
-  quizContent.append(inputForm)
-}
-
+/**
+ * Listener for the score submittal button.
+ * Submits score with the given initials and displays the highscores after.
+ */
 quizContent.on('click', '.score-submit', function (event) {
   event.preventDefault()
   localStorage.setItem($('#initials').val(), score)
   displayScoreboard()
 })
 
-function displayScoreboard() {
-  quizContent.children().remove()
-  quizTitle.text('Highscores')
-  let list = $('<ol>')
-  for (let i = 0; i < localStorage.length; i++) {
-    let listItem = $('<li>')
-    listItem.text(localStorage.key(i) + ' - ' + localStorage.getItem(localStorage.key(i)))
-    list.append(listItem)
-  }
-  quizContent.append(list)
-  let backButton = $('<button>')
-  backButton.addClass('scoreboard-back')
-  backButton.text('Go Back')
-  quizContent.append(backButton)
-  let clearButton = $('<button>')
-  clearButton.addClass('scoreboard-clear')
-  clearButton.text('Clear Highscores')
-  quizContent.append(clearButton)
-}
-
+/**
+ * Listener for the 'view highscores' button in the header.
+ * Displays the highscores.
+ */
 let highscoreButton = $('.quiz-highscores')
 highscoreButton.on('click', function () {
   displayScoreboard()
   $('.quiz-start').remove()
 })
 
+/**
+ * Listener for the 'clear highscores' button on the highscores scoreboard screen.
+ * Clears all scores saved in local storage.
+ */
 quizContent.on('click', '.scoreboard-clear', function () {
   localStorage.clear()
   displayScoreboard()
 })
 
+/**
+ * Listener for the 'go back' button.
+ * Sends the user back to the introduction.
+ */
 quizContent.on('click', '.scoreboard-back', function () {
   createHome()
 })
